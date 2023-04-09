@@ -24,7 +24,8 @@ export default function applicationSiteRoutes(app) {
                 date: date,
                 content: contentArray,
                 thinkAboutIt: thinkAboutIt.replace(/^•\s+/i, ''),
-                bibleInOneYear: bibleInOneYear.replace(/^Bible in One Year:\s+/i, '')
+                bibleInOneYear: bibleInOneYear.replace(/^Bible in One Year:\s+/i, ''),
+                credit: "From In Touch Australia (https://www.intouchaustralia.org/read/daily-devotions)"
             };
 
             return res.send(devotion);
