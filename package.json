@@ -1,0 +1,23 @@
+{
+  "name": "devoteme",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon  --experimental-modules --experimental-json-modules --experimental-specifier-resolution=node"
+  },
+  "keywords": [],
+  "author": "ModularSoft",
+  "homepage": "https://github.com/ModularSoftAU/DevoteMe",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "fastify": "^4.15.0",
+    "json-stringify-safe": "^5.0.1",
+    "moment": "^2.29.4",
+    "node-fetch": "^3.3.1",
+    "nodemon": "^2.0.22"
+  }
+}
