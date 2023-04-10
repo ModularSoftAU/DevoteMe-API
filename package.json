@@ -1,6 +1,6 @@
 {
   "name": "devoteme",
-  "version": "1.0.0",
+  "version": "1.0",
   "description": "",
   "main": "app.js",
   "type": "module",
@@ -12,6 +12,10 @@
   "author": "ModularSoft",
   "homepage": "https://github.com/ModularSoftAU/DevoteMe",
   "license": "ISC",
+  "engines": {
+    "npm": ">=8.5.0",
+    "node": "16.17.0"
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.3",
