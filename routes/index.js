@@ -11,7 +11,7 @@ export default function applicationSiteRoutes(app) {
             const $ = cheerio.load(html);
 
             const devotionTitle = $('h1').first().text().trim();
-            const date = moment(new Date(), 'dddd, MMMM D, YYYY').toDate();
+            const date = moment(new Date()).format('Do MMMM YYYY');
             const devotionContent = $('article.js-scripturize').find('p');
 
             const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get();
