@@ -1,11 +1,3 @@
 {
-    "debug": true,
-    "apiUrl": "https://devoteme-api.herokuapp.com/",
-    "discord": {
-        "guildID": "899441191416901632",
-        "channel": {
-            "devotion": 1094629992362692649,
-            "votd": 926380663953821736
-        }
-    }
+    "debug": true
 }
