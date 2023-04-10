@@ -1,14 +1,11 @@
 import fastify from 'fastify';
 import config from "./config.json" assert {type: "json"};
 import packageData from './package.json' assert {type: "json"};
+import dotenv from 'dotenv';
+dotenv.config()
 
 // Site Routes
 import siteRoutes from './routes'
-
-//
-// Cron Jobs
-//
-import('./cron/daily.js');
 
 //
 // Application Boot
@@ -16,7 +13,6 @@ import('./cron/daily.js');
 const buildApp = async () => {
 
     const app = fastify({ logger: config.debug });
-    const port = process.env.PORT || config.port || 8080;
 
     try {
         app.register((instance, options, next) => {
@@ -33,7 +29,7 @@ const buildApp = async () => {
         })
 
         console.log(`\n// ${packageData.name} v.${packageData.version}\nGitHub Repository: ${packageData.homepage}\nCreated By: ${packageData.author}`);
-        console.log(`API is listening to the port ${port}`);
+        console.log(`API is listening to the port ${process.env.PORT}`);
     } catch (error) {
         app.log.error(`Unable to start the server:\n${error}`);
     }
