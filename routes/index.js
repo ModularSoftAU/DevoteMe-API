@@ -15,14 +15,14 @@ export default function applicationSiteRoutes(app) {
             const devotionContent = $('article.js-scripturize').find('p');
 
             const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get();
+            const devotionReading = contentArray.splice(0, 1)[0];
             const bibleInOneYear = contentArray.splice(-1, 1)[0];
-            const thinkAboutIt = contentArray.splice(-1, 1)[0];
 
             const devotion = {
                 title: devotionTitle,
                 date: date,
+                reading: devotionReading,
                 content: contentArray,
-                thinkAboutIt: thinkAboutIt.replace(/^•\s+/i, ''),
                 bibleInOneYear: bibleInOneYear.replace(/^Bible in One Year:\s+/i, ''),
                 credit: "From In Touch Australia (https://www.intouchaustralia.org/read/daily-devotions)"
             };
