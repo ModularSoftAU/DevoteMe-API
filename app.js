@@ -6,6 +6,11 @@ import packageData from './package.json' assert {type: "json"};
 import siteRoutes from './routes'
 
 //
+// Cron Jobs
+//
+import('./cron/daily.js');
+
+//
 // Application Boot
 //
 const buildApp = async () => {
@@ -20,7 +25,7 @@ const buildApp = async () => {
             next();
         });
 
-        app.listen({ port: port }, (err) => {
+        app.listen({ port: process.env.PORT }, (err) => {
             if (err) {
                 app.log.error(err)
                 process.exit(1)
