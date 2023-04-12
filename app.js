@@ -38,3 +38,7 @@ const buildApp = async () => {
 };
 
 buildApp();
+
+export function removeHtmlEntities(str) {
+    return str.replace(/&ldquo;|&rdquo;/g, '');
+}
