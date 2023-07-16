@@ -1,5 +1,4 @@
 import fastify from 'fastify';
-import config from "./config.json" assert {type: "json"};
 import packageData from './package.json' assert {type: "json"};
 import dotenv from 'dotenv';
 dotenv.config()
@@ -12,7 +11,7 @@ import siteRoutes from './routes'
 //
 const buildApp = async () => {
 
-    const app = fastify({ logger: config.debug });
+    const app = fastify({ logger: process.env.DEBUG });
 
     try {
         app.register((instance, options, next) => {
