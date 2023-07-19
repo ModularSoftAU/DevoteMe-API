@@ -22,7 +22,7 @@ const buildApp = async () => {
 
         const port = process.env.PORT;
 
-        app.listen({ port: port }, (err) => {
+        app.listen({ port: port, host: '0.0.0.0' }, (err) => {
             if (err) {
                 app.log.error(err);
                 process.exit(1);
