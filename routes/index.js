@@ -5,6 +5,9 @@ import xml2js from 'xml2js';
 import { removeHtmlEntities } from '../app';
 
 export default function applicationSiteRoutes(app) {
+    app.get('/', async function (req, res) {
+        return res.send(`DevoteMe-API\nConnection for all of the DevoteMe suite applications.\nDeveloped by Modular Software\nDocumentation: https://modularsoft.org/docs/products/devoteMe/`);
+    });
 
     app.get('/devotion/get', async function (req, res) {
         try {
