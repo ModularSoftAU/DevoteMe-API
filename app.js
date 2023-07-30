@@ -3,8 +3,10 @@ import packageData from './package.json' assert {type: "json"};
 import dotenv from 'dotenv';
 dotenv.config()
 
-// Site Routes
-import siteRoutes from './routes'
+// API Routes
+import apiRoutes from './routes/index'
+import devoteAPIRoutes from './routes/devotionRoutes'
+import votdAPIRoutes from './routes/votdRoutes'
 
 //
 // Application Boot
@@ -16,7 +18,9 @@ const buildApp = async () => {
     try {
         app.register((instance, options, next) => {
             // Routes
-            siteRoutes(instance);
+            apiRoutes(instance);
+            devoteAPIRoutes(instance);
+            votdAPIRoutes(instance);
             next();
         });
 
@@ -37,7 +41,3 @@ const buildApp = async () => {
 };
 
 buildApp();
-
-export function removeHtmlEntities(str) {
-    return str.replace(/&ldquo;|&rdquo;/g, '');
-}
