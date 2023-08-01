@@ -11,17 +11,20 @@
   },
   "keywords": [],
   "author": "ModularSoft",
-  "homepage": "https://github.com/ModularSoftAU/DevoteMe",
+  "homepage": "https://github.com/ModularSoftAU/DevoteMe-API",
   "license": "ISC",
   "engines": {
     "npm": ">=8.5.0",
     "node": "16.17.0"
   },
   "dependencies": {
+    "@fastify/formbody": "^7.4.0",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.3",
-    "fastify": "^4.15.0",
+    "fastify": "^3.25.3",
+    "fastify-formbody": "^5.2.0",
     "moment": "^2.29.4",
+    "mysql": "^2.18.1",
     "node-fetch": "^3.3.1",
     "nodemon": "^2.0.22",
     "xml2js": "^0.5.0"
