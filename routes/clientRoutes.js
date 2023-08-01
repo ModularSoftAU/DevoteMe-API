@@ -1,23 +1,18 @@
-import { generateClientID, required } from "./common";
+import { createClient, doesClientExist } from "../controllers/clientController";
+import { required } from "./common";
 
-export default function clientAPIRoutes(app, db) {
+export default function clientAPIRoutes(app) {
     app.post('/client/create', async function (req, res) {
         const guildId = required(req.body, "guildId", res);
 
-        try {
-            db.query(`INSERT INTO clients (clientKey, guildId) VALUES(?, ?);`, [generateClientID(), guildId], function (error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    return;
-                }
-
-                console.log(results);
-
-                return;
+        let clientExist = await doesClientExist(guildId)
+        if (clientExist) {
+            return res.send({
+                success: false,
+                message: `Client already exists, using existing configuration`
             });
-        } catch (error) {
-            console.log(error);
-            throw error;
+        } else {
+            return createClient(guildId, res);          
         }
     });
 }

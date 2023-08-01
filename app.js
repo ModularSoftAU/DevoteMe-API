@@ -20,6 +20,8 @@ const buildApp = async () => {
     const app = fastify({ logger: process.env.DEBUG });
 
     try {
+        app.register(await import('fastify-formbody'))
+        
         app.register((instance, options, next) => {
             // Routes
             apiRoutes(instance);
@@ -28,8 +30,6 @@ const buildApp = async () => {
             votdAPIRoutes(instance);
             next();
         });
-        
-        app.register(formbody);
 
         const port = process.env.PORT;
 
