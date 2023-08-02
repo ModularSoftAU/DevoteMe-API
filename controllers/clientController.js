@@ -11,7 +11,6 @@ export async function doesClientExist(guildId) {
             if (results.length === 0) {
                 resolve(false);
             } else {
-                console.log(results);
                 let guildId = results[0].guildId;
                 if (guildId == null) {
                     resolve(false);

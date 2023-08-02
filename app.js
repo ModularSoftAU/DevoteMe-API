@@ -1,7 +1,6 @@
 import fastify from 'fastify';
 import packageData from './package.json' assert {type: "json"};
 import dotenv from 'dotenv';
-import formbody from 'fastify-formbody'
 dotenv.config()
 
 // API Routes
@@ -9,6 +8,9 @@ import apiRoutes from './routes/index'
 import clientAPIRoutes from './routes/clientRoutes'
 import devoteAPIRoutes from './routes/devotionRoutes'
 import votdAPIRoutes from './routes/votdRoutes'
+
+// API token authentication
+import verifyToken from './controllers/tokenController'
 
 import db from './controllers/databaseController';
 
@@ -25,9 +27,15 @@ const buildApp = async () => {
         app.register((instance, options, next) => {
             // Routes
             apiRoutes(instance);
-            clientAPIRoutes(instance, db);
             devoteAPIRoutes(instance);
             votdAPIRoutes(instance);
+            next();
+        });
+
+        app.register((instance, options, next) => {
+            // API routes (Token authenticated)
+            instance.addHook('preValidation', verifyToken);
+            clientAPIRoutes(instance, db);
             next();
         });
 
