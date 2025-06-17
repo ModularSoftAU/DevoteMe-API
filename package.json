@@ -15,7 +15,7 @@
   "license": "ISC",
   "engines": {
     "npm": ">=8.5.0",
-    "node": "20.0.0"
+    "node": ">=20.18.1"
   },
   "dependencies": {
     "cheerio": "^1.0.0",

@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import packageData from './package.json' assert {type: "json"};
+import packageData from './package.json' with { type: "json" };
 import db from "./controllers/databaseController.js";
 import dotenv from 'dotenv';
 dotenv.config()
