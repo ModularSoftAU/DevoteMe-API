@@ -15,20 +15,37 @@ export default function applicationSiteRoutes(app) {
             const html = await response.text();
             const $ = cheerio.load(html);
 
-            const devotionTitle = $('h1').first().text().trim();
-            const date = moment(new Date()).format('Do MMMM YYYY');
-            const devotionContent = $('article.js-scripturize').find('p');
+            const devotionTitle = $('h1.h1').text().trim();
+            const dateText = $('span.caption.dark\\:text-gray-dark').text().trim();
+            const date = moment(dateText, 'MMMM D, YYYY').format('Do MMMM YYYY');
 
-            const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get();
-            const devotionReading = contentArray.splice(0, 1)[0];
-            const bibleInOneYear = contentArray.splice(-1, 1)[0];
+            const devotionArticle = $('article.js-scripturize');
+            const allParagraphs = devotionArticle.find('p');
+
+            const devotionReading = allParagraphs.first().text().trim();
+
+            const bioyParagraph = allParagraphs.filter((i, el) => $(el).text().includes('Bible in One Year:'));
+            let bibleInOneYear = '';
+            let contentParagraphs;
+
+            if (bioyParagraph.length > 0) {
+                bibleInOneYear = bioyParagraph.find('span').text().trim();
+                const bioyIndex = allParagraphs.index(bioyParagraph);
+                contentParagraphs = allParagraphs.slice(1, bioyIndex);
+            } else {
+                contentParagraphs = allParagraphs.slice(1);
+            }
+
+            const contentArray = contentParagraphs
+                .map((i, el) => $(el).text().trim())
+                .get();
 
             const devotion = {
                 title: devotionTitle,
                 date: date,
                 reading: devotionReading,
                 content: contentArray,
-                bibleInOneYear: bibleInOneYear.replace(/^Bible in One Year:\s+/i, ''),
+                bibleInOneYear: bibleInOneYear,
                 credit: "From In Touch Australia (https://www.intouchaustralia.org/read/daily-devotions)"
             };
 
