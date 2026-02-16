@@ -1,114 +1,95 @@
 # DevoteMe-API
 
-DevoteMe-API is a platform that aims to help people connect with the Gospel in a more accessible way. It serves as the backend for the DevoteMe application suite, providing daily devotionals and prayer-related functionalities.
+DevoteMe-API is a robust backend platform designed to help people connect with the Gospel through digital tools. It serves as the central data and service provider for the DevoteMe application suite, primarily focused on delivering daily spiritual content and managing multi-tenant configurations.
 
-## Features
+## Features Overview
 
-- **Daily Devotionals**: Scraped from Vision Christian Media ("The Word For Today").
-- **Verse of the Day (VOTD)**: Fetched from Bible Gateway.
-- **Discord Integration**: Dates are formatted using Discord Unix timestamp markdown for dynamic display.
-- **Tenant Management**: Support for multiple tenants (e.g., different Discord servers) with custom configurations.
+### 📖 Daily Devotionals
+The API provides a comprehensive daily devotional service that scrapes content from **Vision Christian Media ("The Word For Today")**.
+- **Source**: `https://vision.org.au/read/bible-study/the-word-for-today/`
+- **Data Extracted**:
+  - **Title**: The main topic of the day.
+  - **Reading**: A theme verse or scripture passage that sets the tone.
+  - **Content**: The full devotional text, delivered as an array of paragraphs for flexible formatting.
+  - **Bible in One Year (SoulFood)**: A daily reading plan to help users read through the Bible.
+- **Technical Heuristics**: Uses advanced Cheerio selectors and User-Agent spoofing (`facebookexternalhit/1.1`) to ensure reliable data extraction and bypass anti-bot protections.
+
+### 📜 Verse of the Day (VOTD)
+Delivers a fresh scripture verse every day, integrated with **Bible Gateway**.
+- **Source**: Bible Gateway Atom Feed.
+- **Processing**:
+  - Automatically removes HTML entities and clutter for a clean reading experience.
+  - Provides the scripture reference, a direct link to the passage, and the verse content.
+
+### 🤖 Discord Optimization
+The API is specifically tuned for Discord integration:
+- **Dynamic Timestamps**: All dates are returned in Discord's Unix timestamp markdown format (`<t:TIMESTAMP:D>`). This allows the Discord client to automatically format the date according to the user's local timezone and preferred date format.
+
+### 🏢 Multi-Tenant Management
+Designed to support multiple organizations or Discord servers simultaneously.
+- **Independent Configuration**: Each tenant can specify different Discord channels for VOTD and Devotional broadcasts.
+- **Interaction Tracking**: Tracks which users have interacted with specific devotions or verses across different tenants.
+
+### ⚡ Prayer Tracking
+Infrastructure to support prayer requests and tracking interactions, helping communities stay connected in prayer.
+
+## Technical Architecture
+
+### Prerequisites
+- **Node.js**: >=20.18.1 (ES Modules)
+- **Database**: MySQL 8.x
+- **Framework**: Fastify
+
+### Database Schema
+The system uses a relational MySQL schema to manage data:
+- `tenants`: Stores unique tenant IDs and names.
+- `tenantConfiguration`: Stores channel settings for each tenant.
+- `devotions`: Tracks user interactions with daily devotions.
+- `votd`: Tracks user interactions with the Verse of the Day.
+- `prayers`: Stores prayer request interactions.
+
+### Authentication
+Security is enforced for all `/api/` endpoints using an `x-access-token` header. This token must match the `APIKEY` defined in the server's environment variables.
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (>=20.18.1)
-- MySQL Database
-
 ### Installation
-
 1. Clone the repository.
 2. Install dependencies:
    ```bash
    npm install
    ```
-3. Create a `.env` file based on `.env.example` and fill in your database credentials and API key.
+3. Initialize the database using `dbinit.sql`.
+4. Configure environment variables in a `.env` file:
+   ```env
+   PORT=8080
+   APIKEY=your_secure_key
+   DBHOST=localhost
+   DBUSER=root
+   DBPASSWORD=your_password
+   DBNAME=devoteMe
+   ```
 
-### Running the Application
+### Running the App
+- **Development**: `npm run dev` (uses nodemon)
+- **Production**: `npm run prod` (optimized for performance)
 
-- **Development**:
-  ```bash
-  npm run dev
-  ```
-- **Production**:
-  ```bash
-  npm run prod
-  ```
-
-## API Documentation
-
-All API routes under `/api/` require an `x-access-token` header for authentication, which should match the `APIKEY` set in your `.env` file.
+## API Reference
 
 ### Public Endpoints
+- `GET /devotion/get`: Returns the current scraped devotion.
+- `GET /votd/get`: Returns the current Verse of the Day.
 
-#### `GET /`
-Displays basic information about the API.
+### Administrative API (`/api/tenant`)
+- `GET /api/tenant/get`: List all tenants or get one by ID.
+- `POST /api/tenant/create`: Register a new tenant.
+- `POST /api/tenant/update`: Update configuration (VOTD/Devotion channels).
 
-#### `GET /devotion/get`
-Fetches the latest daily devotion from Vision Christian Media.
-- **Response**:
-  ```json
-  {
-    "title": "String",
-    "date": "<t:TIMESTAMP:D>",
-    "reading": "String",
-    "content": ["String"],
-    "bibleInOneYear": "String",
-    "credit": "String"
-  }
-  ```
-
-#### `GET /votd/get`
-Fetches the latest Verse of the Day from Bible Gateway.
-- **Response**:
-  ```json
-  {
-    "reference": "String",
-    "referenceLink": "String",
-    "date": "<t:TIMESTAMP:D>",
-    "content": "String",
-    "credit": "String"
-  }
-  ```
-
-### Tenant API (`/api/tenant`)
-
-#### `GET /api/tenant/get`
-Retrieves tenant information.
-- **Query Params**: `id` (optional) - The ID of the tenant to retrieve.
-
-#### `GET /api/tenant/configuration/get`
-Retrieves configuration for a specific tenant.
-- **Query Params**: `id` (required) - The ID of the tenant.
-
-#### `POST /api/tenant/create`
-Creates a new tenant and its default configuration.
-- **Body (JSON)**: `tenantId`, `tenantName`
-
-#### `POST /api/tenant/update`
-Updates tenant configuration (e.g., notification channels).
-- **Body (JSON)**: `tenantId`, `votd_channel` (optional), `devotion_channel` (optional)
-
-### Devotion API (`/api/devotion`)
-
-#### `GET /api/devotion/check`
-Checks if a devotion record exists for a specific user and tenant.
-- **Query Params**: `tenantId`, `messageId`, `userId`
-
-#### `POST /api/devotion/add`
-Adds a new devotion entry to the database.
-- **Body (JSON)**: `tenantId`, `messageId`, `userId`
-
-### VOTD API (`/api/votd`)
-
-#### `GET /api/votd/check`
-Checks if a VOTD record exists.
-- **Query Params**: `tenantId`, `messageId`, `userId`
-
-#### `POST /api/votd/add`
-Adds a new VOTD entry to the database.
-- **Body (JSON)**: `tenantId`, `messageId`, `userId`
+### Interaction API
+- `GET /api/devotion/check`: Verify if a user has read a devotion.
+- `POST /api/devotion/add`: Log a devotion interaction.
+- `GET /api/votd/check`: Verify if a user has read a VOTD.
+- `POST /api/votd/add`: Log a VOTD interaction.
 
 ---
 **Learn more about DevoteMe on our [website](https://modularsoft.org/docs/products/devoteMe/)**
