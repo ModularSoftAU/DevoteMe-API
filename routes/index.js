@@ -11,7 +11,12 @@ export default function applicationSiteRoutes(app) {
 
     app.get('/devotion/get', async function (req, res) {
         try {
-            const response = await fetch('https://www.intouchaustralia.org/read/daily-devotions');
+            const response = await fetch('https://www.intouchaustralia.org/read/daily-devotions', {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                }
+            });
 
             if (!response.ok) {
                 return res.status(502).send({
