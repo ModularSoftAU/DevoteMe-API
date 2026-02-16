@@ -11,7 +11,11 @@ export default function applicationSiteRoutes(app) {
 
     app.get('/devotion/get', async function (req, res) {
         try {
-            const response = await fetch('https://www.intouchaustralia.org/read/daily-devotions');
+            const response = await fetch('https://vision.org.au/read/bible-study/the-word-for-today/', {
+                headers: {
+                    'User-Agent': 'facebookexternalhit/1.1'
+                }
+            });
 
             if (!response.ok) {
                 return res.status(502).send({
@@ -22,11 +26,15 @@ export default function applicationSiteRoutes(app) {
             const html = await response.text();
             const $ = cheerio.load(html);
 
-            const devotionTitle = $('h1').first().text().trim();
+            const devotionTitle = $('h1.entry-title').first().text().trim();
             const date = moment(new Date()).format('Do MMMM YYYY');
-            const devotionContent = $('article.js-scripturize .wysiwyg').find('p');
+            const devotionReading = $('h2.dmach-acf-value').first().text().trim();
 
-            const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get();
+            const devotionContent = $('.dmach-acf-value').filter((i, el) => {
+                return $(el).find('p').length > 1;
+            }).first().find('p');
+
+            const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get().filter(text => text.length > 0);
 
             if (contentArray.length === 0) {
                 return res.status(502).send({
@@ -34,16 +42,18 @@ export default function applicationSiteRoutes(app) {
                 });
             }
 
-            const devotionReading = contentArray.splice(0, 1)[0];
-            const bibleInOneYear = contentArray.splice(-1, 1)[0];
+            const bibleInOneYearElement = $('.dmach-acf-value').filter((i, el) => {
+                return $(el).text().includes("SoulFood");
+            }).first();
+            const bibleInOneYear = bibleInOneYearElement.length > 0 ? bibleInOneYearElement.text().trim().replace(/^SoulFood:\s+/i, '').replace(/\s+/g, ' ') : null;
 
             const devotion = {
                 title: devotionTitle,
                 date: date,
                 reading: devotionReading,
                 content: contentArray,
-                bibleInOneYear: bibleInOneYear ? bibleInOneYear.replace(/^Bible in One Year:\s+/i, '') : null,
-                credit: "From In Touch Australia (https://www.intouchaustralia.org/read/daily-devotions)"
+                bibleInOneYear: bibleInOneYear,
+                credit: "From Vision Christian Media (https://vision.org.au/read/bible-study/the-word-for-today/)"
             };
 
             return res.send(devotion);
