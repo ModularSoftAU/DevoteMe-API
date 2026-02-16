@@ -27,7 +27,8 @@ export default function applicationSiteRoutes(app) {
             const $ = cheerio.load(html);
 
             const devotionTitle = $('h1.entry-title').first().text().trim();
-            const date = moment(new Date()).format('Do MMMM YYYY');
+            const timestamp = Math.floor(Date.now() / 1000);
+            const date = `<t:${timestamp}:D>`;
             const devotionReading = $('h2.dmach-acf-value').first().text().trim();
 
             const devotionContent = $('.dmach-acf-value').filter((i, el) => {
@@ -75,7 +76,8 @@ export default function applicationSiteRoutes(app) {
                 if (err) {
                     console.error(err);
                 } else {
-                    const date = moment(result.feed.updated[0]).format('Do MMMM YYYY');
+                    const timestamp = Math.floor(new Date(result.feed.updated[0]).getTime() / 1000);
+                    const date = `<t:${timestamp}:D>`;
 
                     const votd = {
                         reference: result.feed.entry[0].title[0],
