@@ -12,6 +12,13 @@ export default function applicationSiteRoutes(app) {
     app.get('/devotion/get', async function (req, res) {
         try {
             const response = await fetch('https://www.intouchaustralia.org/read/daily-devotions');
+
+            if (!response.ok) {
+                return res.status(502).send({
+                    error: `Failed to fetch devotion from source (HTTP ${response.status})`
+                });
+            }
+
             const html = await response.text();
             const $ = cheerio.load(html);
 
@@ -20,6 +27,13 @@ export default function applicationSiteRoutes(app) {
             const devotionContent = $('article.js-scripturize .wysiwyg').find('p');
 
             const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get();
+
+            if (contentArray.length === 0) {
+                return res.status(502).send({
+                    error: 'Unable to parse devotion content from source — the page structure may have changed'
+                });
+            }
+
             const devotionReading = contentArray.splice(0, 1)[0];
             const bibleInOneYear = contentArray.splice(-1, 1)[0];
 
@@ -28,7 +42,7 @@ export default function applicationSiteRoutes(app) {
                 date: date,
                 reading: devotionReading,
                 content: contentArray,
-                bibleInOneYear: bibleInOneYear.replace(/^Bible in One Year:\s+/i, ''),
+                bibleInOneYear: bibleInOneYear ? bibleInOneYear.replace(/^Bible in One Year:\s+/i, '') : null,
                 credit: "From In Touch Australia (https://www.intouchaustralia.org/read/daily-devotions)"
             };
 
@@ -36,7 +50,9 @@ export default function applicationSiteRoutes(app) {
 
         } catch (error) {
             console.log(error);
-            throw error;
+            return res.status(500).send({
+                error: 'An unexpected error occurred while fetching the devotion'
+            });
         }
     });
 
