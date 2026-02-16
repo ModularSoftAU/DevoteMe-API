@@ -11,8 +11,8 @@ export default function applicationSiteRoutes(app) {
 
     app.get('/devotion/get', async function (req, res) {
         try {
-            console.log('[devotion/get] Fetching from intouchaustralia.org...');
-            const response = await fetch('https://www.intouchaustralia.org/read/daily-devotions', {
+            console.log('[devotion/get] Fetching from intouch.org...');
+            const response = await fetch('https://www.intouch.org/read/daily-devotions', {
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -107,7 +107,7 @@ export default function applicationSiteRoutes(app) {
                 content: contentArray.join('\n\n'),
                 paragraphs: contentArray,
                 bibleInOneYear: bibleInOneYear ? bibleInOneYear.replace(/^Bible in One Year:\s+/i, '') : null,
-                credit: "From In Touch Australia (https://www.intouchaustralia.org/read/daily-devotions)"
+                credit: "From In Touch Ministries (https://www.intouch.org/read/daily-devotions)"
             };
 
             console.log(`[devotion/get] Success — returning devotion: "${devotionTitle}"`);
