@@ -17,7 +17,7 @@ export default function applicationSiteRoutes(app) {
 
             const devotionTitle = $('h1').first().text().trim();
             const date = moment(new Date()).format('Do MMMM YYYY');
-            const devotionContent = $('article.js-scripturize').find('p');
+            const devotionContent = $('article.js-scripturize .wysiwyg').find('p');
 
             const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get();
             const devotionReading = contentArray.splice(0, 1)[0];
