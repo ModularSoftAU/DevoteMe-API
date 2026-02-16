@@ -1,23 +1,30 @@
-import mysql from 'mysql';
-import dotenv from 'dotenv';
-dotenv.config()
+import mysql from "mysql2";
+import dotenv from "dotenv";
 
-var connection = mysql.createConnection({
-  host: process.env.databaseHost,
-  port: process.env.databasePort,
-  user: process.env.databaseUser,
-  password: process.env.databasePassword,
-  database: process.env.databaseName,
+dotenv.config();
+
+const pool = mysql.createPool({
+  connectionLimit: 10,
+  host: process.env.DBHOST,
+  port: process.env.DBPORT,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
+  database: process.env.DBNAME,
   multipleStatements: true
-});
+}).promise();
 
-connection.connect(function(err) {
-  if (err) {
+// Function to get a connection and log a message
+async function initializePool() {
+  try {
+    const connection = await pool.getConnection();
+    console.log(`[CONSOLE] [DB] Database pool connection is successful.`);
+    connection.release();
+  } catch (err) {
     console.error(`[ERROR] [DB] There was an error connecting:\n ${err.stack}`);
-    connection.connect();
-    return;
   }
-  console.log(`[CONSOLE] [DB] Database connection is successful. Your connection ID is ${connection.threadId}.`);
-});
+}
 
-export default connection;
+// Call the initialization function
+initializePool();
+
+export default pool;

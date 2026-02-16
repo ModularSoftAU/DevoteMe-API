@@ -1,18 +1,15 @@
 import fastify from 'fastify';
-import packageData from './package.json' assert {type: "json"};
+import packageData from './package.json' with { type: "json" };
+import db from "./controllers/databaseController.js";
 import dotenv from 'dotenv';
 dotenv.config()
 
-// API Routes
-import apiRoutes from './routes/index'
-import clientAPIRoutes from './routes/clientRoutes'
-import devoteAPIRoutes from './routes/devotionRoutes'
-import votdAPIRoutes from './routes/votdRoutes'
+// Site Routes
+import siteRoutes from './routes/index.js'
+import apiRoutes from "./api/routes/index.js";
 
 // API token authentication
-import verifyToken from './controllers/tokenController'
-
-import db from './controllers/databaseController';
+import verifyToken from "./api/routes/verifyToken.js";
 
 //
 // Application Boot
@@ -22,24 +19,20 @@ const buildApp = async () => {
     const app = fastify({ logger: process.env.DEBUG });
 
     try {
-        app.register(await import('fastify-formbody'))
-        
         app.register((instance, options, next) => {
             // Routes
-            apiRoutes(instance);
-            devoteAPIRoutes(instance);
-            votdAPIRoutes(instance);
+            siteRoutes(instance);
             next();
         });
 
-        app.register((instance, options, next) => {
-            // API routes (Token authenticated)
-            instance.addHook('preValidation', verifyToken);
-            clientAPIRoutes(instance, db);
-            next();
+        await app.register((instance, options, next) => {
+          // API routes (Token authenticated)
+          instance.addHook("preValidation", verifyToken);
+          apiRoutes(instance, db);
+          next();
         });
 
-        const port = process.env.PORT;
+        const port = process.env.PORT || 3000;
 
         app.listen({ port: port, host: '0.0.0.0' }, (err) => {
             if (err) {
@@ -56,3 +49,7 @@ const buildApp = async () => {
 };
 
 buildApp();
+
+export function removeHtmlEntities(str) {
+    return str.replace(/&ldquo;|&rdquo;|&#8212;|&#8217;|&#8220;|&#8221;|&#8216;|&#8211;|&#8230;|&#8243;|&#8246;/g, '');
+}
