@@ -37,7 +37,11 @@ export default function applicationSiteRoutes(app) {
 
             const $ = cheerio.load(html);
 
-            const devotionTitle = $('h1').first().text().trim();
+            let devotionTitle = $('h1').first().text().trim();
+            if (!devotionTitle) {
+                devotionTitle = $('meta[property="og:title"]').attr('content') || '';
+                console.log(`[devotion/get] Title not found in h1, tried og:title: "${devotionTitle}"`);
+            }
             console.log(`[devotion/get] Devotion title: "${devotionTitle}"`);
 
             const date = moment(new Date()).format('Do MMMM YYYY');
@@ -48,34 +52,60 @@ export default function applicationSiteRoutes(app) {
             const wysiwygCount = $('article.js-scripturize .wysiwyg').length;
             console.log(`[devotion/get] Selector matches — article: ${articleCount}, article.js-scripturize: ${jsScripturizeCount}, .wysiwyg: ${wysiwygCount}`);
 
-            const devotionContent = $('article.js-scripturize .wysiwyg').find('p');
+            let devotionContent = $('article.js-scripturize .wysiwyg').find('p');
+
+            if (devotionContent.length === 0) {
+                console.log(`[devotion/get] Primary selector failed, trying alternatives...`);
+                devotionContent = $('.wysiwyg p');
+            }
+
+            if (devotionContent.length === 0) {
+                devotionContent = $('article p');
+            }
+
+            if (devotionContent.length === 0) {
+                devotionContent = $('.content p');
+            }
+
             console.log(`[devotion/get] Found ${devotionContent.length} paragraph elements`);
 
-            const contentArray = devotionContent.map((i, el) => $(el).text().trim()).get();
+            const contentArray = devotionContent.map((i, el) => removeHtmlEntities($(el).text().trim())).get();
             console.log(`[devotion/get] Content array (${contentArray.length} items):`, JSON.stringify(contentArray.map(s => s.substring(0, 80))));
 
             if (contentArray.length === 0) {
-                // Log all article content for debugging
+                // Log more details for debugging
                 const allArticles = $('article').map((i, el) => $(el).attr('class')).get();
                 console.log(`[devotion/get] All article classes:`, allArticles);
                 const allH1 = $('h1').map((i, el) => $(el).text().trim()).get();
                 console.log(`[devotion/get] All h1 elements:`, allH1);
+                console.log(`[devotion/get] HTML structure summary:`, html.substring(0, 1000));
 
                 return res.status(502).send({
                     error: 'Unable to parse devotion content from source — the page structure may have changed'
                 });
             }
 
-            const devotionReading = contentArray.splice(0, 1)[0];
-            const bibleInOneYear = contentArray.splice(-1, 1)[0];
+            const devotionReading = contentArray.shift(); // Use shift instead of splice for clarity
+
+            let bibleInOneYear = null;
+            if (contentArray.length > 0) {
+                const lastItem = contentArray[contentArray.length - 1];
+                if (lastItem.toLowerCase().includes('bible in one year')) {
+                    bibleInOneYear = contentArray.pop();
+                    console.log(`[devotion/get] Extracted Bible in One Year: "${bibleInOneYear}"`);
+                } else {
+                    console.log(`[devotion/get] Last item does not seem to be Bible in One Year: "${lastItem.substring(0, 50)}..."`);
+                }
+            }
+
             console.log(`[devotion/get] Reading: "${devotionReading}"`);
-            console.log(`[devotion/get] Bible in One Year: "${bibleInOneYear}"`);
 
             const devotion = {
                 title: devotionTitle,
                 date: date,
                 reading: devotionReading,
-                content: contentArray,
+                content: contentArray.join('\n\n'),
+                paragraphs: contentArray,
                 bibleInOneYear: bibleInOneYear ? bibleInOneYear.replace(/^Bible in One Year:\s+/i, '') : null,
                 credit: "From In Touch Australia (https://www.intouchaustralia.org/read/daily-devotions)"
             };
