@@ -50,7 +50,7 @@ export default function votdApiRoute(app, db) {
     } catch (error) {
       res.send({
         success: false,
-        message: `Error creating devotion entry: ${error}`,
+        message: `Error creating VOTD entry: ${error}`,
       });
     }
   });
