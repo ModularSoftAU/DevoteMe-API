@@ -11,7 +11,7 @@
   },
   "keywords": [],
   "author": "ModularSoft",
-  "homepage": "https://github.com/ModularSoftAU/DevoteMe",
+  "homepage": "https://github.com/ModularSoftAU/DevoteMe-API",
   "license": "ISC",
   "engines": {
     "npm": ">=8.5.0",
@@ -20,7 +20,8 @@
   "dependencies": {
     "cheerio": "^1.0.0",
     "dotenv": "^16.0.3",
-    "fastify": "^4.15.0",
+    "fastify": "^3.25.3",
+    "fastify-formbody": "^5.2.0",
     "moment": "^2.29.4",
     "mysql2": "^3.12.0",
     "node-fetch": "^3.3.1",
