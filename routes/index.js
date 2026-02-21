@@ -76,13 +76,9 @@ export default function applicationSiteRoutes(app) {
                 if (err) {
                     console.error(err);
                 } else {
-                    const timestamp = Math.floor(new Date(result.feed.updated[0]).getTime() / 1000);
-                    const date = `<t:${timestamp}:D>`;
-
                     const votd = {
                         reference: result.feed.entry[0].title[0],
                         referenceLink: result.feed.entry[0].link[0].$.href,
-                        date: date,
                         content: removeHtmlEntities(result.feed.entry[0].content[0]._),
                         credit: result.feed.link[1].$.href
                     };
