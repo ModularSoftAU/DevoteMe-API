@@ -56,12 +56,15 @@ export default function applicationSiteRoutes(app) {
             }).first();
             const bibleInOneYear = bibleInOneYearElement.length > 0 ? bibleInOneYearElement.text().trim().replace(/^SoulFood:\s+/i, '').replace(/\s+/g, ' ') : null;
 
+            const timestamp = Math.floor(Date.now() / 1000);
+            const date = `<t:${timestamp}:D>`;
             const devotion = {
                 title: devotionTitle,
+                date: date,
                 reading: devotionReading,
                 content: contentArray,
                 bibleInOneYear: bibleInOneYear,
-                credit: "From Vision Christian Media (https://vision.org.au/read/bible-study/the-word-for-today/)"
+                credit: "[From Vision Christian Media](https://vision.org.au/read/bible-study/the-word-for-today/)"
             };
 
             devotionCache.set(today, devotion);
