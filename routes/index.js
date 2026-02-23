@@ -4,12 +4,22 @@ import moment from "moment";
 import xml2js from 'xml2js';
 import { removeHtmlEntities } from '../app.js';
 
+const devotionCache = new Map();
+
 export default function applicationSiteRoutes(app) {
     app.get('/', async function (req, res) {
         return res.send(`DevoteMe-API\nConnection for all of the DevoteMe suite applications.\nDeveloped by Modular Software\nDocumentation: https://modularsoft.org/docs/products/devoteMe/`);
     });
 
     app.get('/devotion/get', async function (req, res) {
+        const today = moment().format('YYYY-MM-DD');
+        if (devotionCache.has(today)) {
+            return res.send(devotionCache.get(today));
+        }
+
+        // Clear cache to avoid memory leaks with old dates
+        devotionCache.clear();
+
         try {
             const response = await fetch('https://vision.org.au/read/bible-study/the-word-for-today/', {
                 headers: {
@@ -26,10 +36,8 @@ export default function applicationSiteRoutes(app) {
             const html = await response.text();
             const $ = cheerio.load(html);
 
-            const devotionTitle = $('h1.entry-title').first().text().trim();
-            const timestamp = Math.floor(Date.now() / 1000);
-            const date = `<t:${timestamp}:D>`;
-            const devotionReading = $('h2.dmach-acf-value').first().text().trim();
+            const devotionTitle = $('h1.entry-title').first().text().trim().replace(/\s+/g, ' ');
+            const devotionReading = $('h2.dmach-acf-value').first().text().trim().replace(/\s+/g, ' ');
 
             const devotionContent = $('.dmach-acf-value').filter((i, el) => {
                 return $(el).find('p').length > 1;
@@ -48,14 +56,18 @@ export default function applicationSiteRoutes(app) {
             }).first();
             const bibleInOneYear = bibleInOneYearElement.length > 0 ? bibleInOneYearElement.text().trim().replace(/^SoulFood:\s+/i, '').replace(/\s+/g, ' ') : null;
 
+            const timestamp = Math.floor(Date.now() / 1000);
+            const date = `<t:${timestamp}:D>`;
             const devotion = {
                 title: devotionTitle,
                 date: date,
                 reading: devotionReading,
                 content: contentArray,
                 bibleInOneYear: bibleInOneYear,
-                credit: "From Vision Christian Media (https://vision.org.au/read/bible-study/the-word-for-today/)"
+                credit: "[From Vision Christian Media](https://vision.org.au/read/bible-study/the-word-for-today/)"
             };
+
+            devotionCache.set(today, devotion);
 
             return res.send(devotion);
 
